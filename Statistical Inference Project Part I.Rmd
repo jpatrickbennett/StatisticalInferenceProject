@@ -1,0 +1,51 @@
+---
+title: "Statistical Inference Project - Part I"
+author: "Patrick Bennett"
+date: "September 22, 2015"
+output: html_document
+---
+
+##Overview:
+In this project we will investigate the exponential distribution in R and compare it with the Central Limit Theorem. We will run 1,000 simulations that take the mean and variance of means of 40 observations of an exponential distribution. We will then compare these results to the normal distribution and expected results. 
+
+##Simulations:
+```{r}
+# Run 1,000 simulations that each take the mean of 40 observations  
+# of an exponential random variable with a lambda of 5.
+set.seed(1028)
+reps <- 1000
+obs <- 40
+lambda <- 5
+means <- replicate(reps, mean(rexp(obs,lambda)))
+```
+
+##Sample versus Theoretical means and variances
+We can then compare the actual mean and standard deviation (standard error) of the simulations with the theoretical mean and standard deviation.
+
+Note we will be comparing standard deviations (standard error) rather than variances. Standard deviations are simply the square root of the variance.
+
+```{r}
+theor_mean <- 1/lambda
+theor_sd <- 1/(lambda*sqrt(obs))
+
+actual_mean <- mean(means)
+actual_sd <- sqrt(var(means))
+```
+
+Comparing means, the actual observed mean is `r format(round(actual_mean,2), nsmall=2)`, while the theoretical mean is `r format(round(theor_mean,2), nsmall=2)`.
+
+Comparing standard deviation, the actual observed standard deviation is `r format(round(actual_sd, 3),nsmall=3)`, while the theoretical standard deviation is `r format(round(theor_sd, 3),nsmall=3)`.
+
+##Distribution
+We can also plot the actual distribution of sample means as a histogram. Here we've overlayed the actual mean of sample means as a blue line and the theoretical normal distribution of sample means in red. 
+
+You can see that the realized distribution is quite similar to the theoretical normal distribution, and the realized mean of means lines up with the theoretical mean. 
+
+```{r}
+library(ggplot2)
+ggplot(data.frame(means), aes(means)) + 
+  geom_histogram(aes(y=..density..), binwidth=0.01) +
+  stat_function(fun=function(x)dnorm(x, mean=theor_mean, sd=theor_sd), color="red", size=1) +
+  labs(title = "Histogram of Simulation Sample Means") +
+  geom_vline(xintercept=actual_mean, color = "blue", size=1)
+```

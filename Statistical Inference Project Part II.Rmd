@@ -1,0 +1,51 @@
+---
+title: "Statistical Inference Project Part II"
+author: "Patrick Bennett"
+date: "September 26, 2015"
+output: html_document
+---
+
+##Basic summary and exploratory analysis of the data:
+We will load the ToothGrowth dataset, take a look at some summary data, and use boxplots as an exploratory analysis tool to get a feel for the interaction between supp, dose, and len.
+
+```{r}
+library(ggplot2)
+data(ToothGrowth)
+summary(ToothGrowth)
+head(ToothGrowth)
+ToothGrowth <- transform(ToothGrowth, dose=factor(dose))
+qplot(supp, len, data=ToothGrowth, geom="boxplot", facets=.~dose)
+```
+
+##Preliminary hypotheses:
+With effectiveness being measured through having a higher len, it would appear from the boxplots that perhaps there is a difference in effectiveness between supps, with OJ being superior to VC. 
+
+It would also appear that perhaps the higher dose levels are more effective than the lower ones.
+
+
+##Statistical analysis of hypotheses & conclusions:
+###Conclusion 1
+Let's test the first hypotehsis using a T-Test of the two supps:
+
+```{r}
+t.test(len~supp, data=ToothGrowth)
+```
+
+The confidence interval encompasses 0, so we cannot reject the null hypothesis that there is no difference in effectiveness. Our first theory cannot be supported. We cannot statistically say that the OJ supp is more effective than the VC supp at achieving higher lens. 
+
+###Conclusion 2
+Now, for the second hypothesis, let's look at a T-Test comparing the 0.5 dose and the 2.0 dose. We will subset the data to help us with this.
+
+```{r}
+dosecompare = subset(ToothGrowth, dose %in% c(0.5,2))
+t.test(len~dose, data=dosecompare)
+```
+
+In this case, the confidence interval does not encompass 0, and the p-value is well below 0.05, indicating that we can reject the null hypothesis and conclude that the dose of 2.0 has statistically higher lengths than the dose of 0.5. Higher doses are more effective at achieving higher lengths (as between dose 2.0 and dose 0.5).
+
+##Assumptions used:
+In making these conclusions, we had to make a few assumptions:
+
+1. The samples (in this case guinea pigs) were randomly assigned to the different groups.
+2. The members of the sample groups are representative of the population.
+3. For the T-Test, we are assuming the variances within the two subsets are equal.
